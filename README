@@ -1,0 +1,38 @@
+Ultraedit-to-R
+
+Note that this source is free as in beer and speech. Use it, abuse it, but most of all, improve it.
+
+The original purpose of this program is to provide a conduit from Ultraedit to R, although really it is just a socket client (winsock) that sends to port 8888 (or other port) on localhost and then prints what is sent back to it. So its use could be more general, but I am covering specifically the Ultraedit <-> R need here.
+
+Installing
+
+Right now, you will need mingw32 or something similar to compile it. So get mingw32, and compile with
+gcc simplesend.c -o send.exe -lws2_32
+(the ws2_32 library contains some winsock commands). If you have Microsoft or other tools, you may have to tweak things slightly. Place the executable wherever, but remember where you put it (or put it in a Windows path directory).
+
+In R, make sure you have the svSocket package (using install.packages("svSocket")). Then execute the following commands in R:
+library(svSocket)
+startSocketServer()
+
+In Ultraedit, create a custom tool (Advanced->Custom Tool Configuration). Do the following:
+Menu name: Send to R (or whatever you want to call it, but remember the name!)
+Path: "c:\path\to\send -e" where you moved send.exe. If send.exe is in the Windows path, this can be "send -e" The -e switch tells send to echo the commands sent to R, so they can display. If you wish, you can create another tool without the -e switch to turn off the echo feature.
+Starting directory: %p
+In the Options tab, make sure DOS program radio button is selected.
+In Output tab, make sure Append to existing, Capture output, and No replace are selected.
+Save the tool. Now you can select text, copy it to the clipboard, and select the tool in the advanced menu or hit its key equivalent. A new window should appear with the command output.
+
+If you want, you can create macros and/or scripts to send lines at a time, selection, files, etc., but I haven't gotten that far with the tool.
+
+Help on using the tool can be obtained by running send -h from the command line.
+
+TODO:
+* make it so that the clipboard is not clobbered everytime you want to send code. Actually, the plumbing is in place. If you can get Ultraedit to write to a temp file, you can then execute send [-e] -f "c:/path/to/temp/file" to send the commands on to R.
+* write more complete documentation.
+* for some reason, I can't get -p to work correctly, so being fancy and running R socket server on another port does not seem to work yet.
+* commands are not echoed in R console as they are in Tinn-R. This requires understanding svSocket package a lot better than I do now. I think this can be done with a custom processSocket() function, but I only started this a day ago.
+
+Changelog
+
+version 2011-01-18
+* First commit
